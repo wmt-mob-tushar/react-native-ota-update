@@ -8,7 +8,9 @@ Ship JavaScript bundle updates to your users instantly, without going through th
 
 No CodePush. No App Center. No Expo EAS. No per-seat pricing. **Full ownership.**
 
-[Getting Started](#-getting-started) · [Architecture](#-architecture) · [CLI](#-cli-reference) · [SDK](#-sdk-integration) · [Docs](./docs-site)
+📖 **[Documentation → react-native-ota-update-docs.vercel.app](https://react-native-ota-update-docs.vercel.app/)**
+
+[Getting Started](#-getting-started) · [Architecture](#-architecture) · [CLI](#-cli-reference) · [SDK](#-sdk-integration) · [Docs](https://react-native-ota-update-docs.vercel.app/)
 
 </div>
 
@@ -238,8 +240,9 @@ ota-cli rollout -c beta -p ios --percent 100
 
 ## 📚 Documentation
 
+- **🌐 [react-native-ota-update-docs.vercel.app](https://react-native-ota-update-docs.vercel.app/)** — full documentation site (auto-deployed from `docs-site/` on every push).
 - **[INSTRUCTIONS.md](./INSTRUCTIONS.md)** — exhaustive step-by-step reference (backend, CLI, SDK, native, dashboard, API, troubleshooting, E2E test).
-- **[docs-site/](./docs-site)** — Docusaurus site (`cd docs-site && npm install && npm start`).
+- Run the docs locally: `cd docs-site && npm install && npm start`.
 
 ## License
 
