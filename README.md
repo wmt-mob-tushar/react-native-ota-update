@@ -244,6 +244,34 @@ ota-cli rollout -c beta -p ios --percent 100
 - **[INSTRUCTIONS.md](./INSTRUCTIONS.md)** — exhaustive step-by-step reference (backend, CLI, SDK, native, dashboard, API, troubleshooting, E2E test).
 - Run the docs locally: `cd docs-site && npm install && npm start`.
 
+## 🤝 Contributing
+
+Contributions are welcome — bug reports, docs, features, and fixes. Please read the **[Contributing Guide](./CONTRIBUTING.md)** for the development setup, branch naming, and pull-request workflow.
+
+1. Fork the repo and branch from `main` (`feat/…`, `fix/…`, `docs/…`).
+2. Make your change — CI typechecks the SDK and builds the CLI + dashboard automatically.
+3. Open a pull request describing *what* and *why*.
+
+Found a security issue? Please email **tusharkumarp@webmobtech.com** instead of opening a public issue.
+
+## 👥 Contributors
+
+Thanks to everyone who has helped build this project!
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/wmt-mob-tushar">
+        <img src="https://github.com/wmt-mob-tushar.png" width="80" style="border-radius:50%" alt="Tushar Kumar"/><br/>
+        <sub><b>Tushar Kumar</b></sub>
+      </a><br/>
+      <sub>Creator &amp; Maintainer</sub>
+    </td>
+  </tr>
+</table>
+
+Built and maintained by [**WebMob Technologies**](https://www.webmobtech.com/). Want to be on this list? See the [Contributing Guide](./CONTRIBUTING.md) and open a PR.
+
 ## License
 
-MIT © WebMob Technologies
+[MIT](./LICENSE) © WebMob Technologies
