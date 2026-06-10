@@ -268,8 +268,10 @@ useEffect(() => {
                       <td className="py-2 pr-4">{b.should_force_update ? <AlertTriangle className="w-4 h-4 text-orange-500" /> : '—'}</td>
                       <td className="py-2 pr-4">
                         <button onClick={() => toggleBundle(String(b.id), !b.enabled)}
-                          className={`w-9 h-5 rounded-full transition-colors relative ${b.enabled ? 'bg-green-500' : 'bg-gray-300'}`}>
-                          <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${b.enabled ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                          role="switch" aria-checked={Boolean(b.enabled)}
+                          title={b.enabled ? 'Disable this bundle' : 'Enable this bundle'}
+                          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${b.enabled ? 'bg-green-500' : 'bg-gray-300'}`}>
+                          <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${b.enabled ? 'translate-x-4' : 'translate-x-0.5'}`} />
                         </button>
                       </td>
                       <td className="py-2 text-xs text-muted-foreground">{String(b.created_at).slice(0,10)}</td>
