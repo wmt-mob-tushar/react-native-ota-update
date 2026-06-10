@@ -1,13 +1,10 @@
-name: Deploy Docs
+name: Deploy Docs (GitHub Pages — optional)
 
-# Builds the Docusaurus site and publishes it to GitHub Pages on every
-# push to main that touches the docs (or this workflow).
+# Optional GitHub Pages deploy. Primary hosting is Vercel (deploy-vercel.yml).
+# Manual-only so it doesn't fail when Pages isn't enabled. To use it: enable
+# Pages (Settings → Pages → Source: GitHub Actions) then run it from the
+# Actions tab.
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'docs-site/**'
-      - '.github/workflows/deploy-docs.yml'
   workflow_dispatch:
 
 # Allow the GITHUB_TOKEN to deploy to Pages
