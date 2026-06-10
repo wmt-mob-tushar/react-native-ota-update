@@ -34,6 +34,10 @@ It is modelled on the architecture of the best open-source OTA projects (notably
 
 ## How it fits together
 
-A React Native app embeds the **SDK** and two tiny **native modules**. The SDK talks to **Supabase Edge Functions** using a public per-app key. Bundles live in a **private storage bucket** and are served via short-lived signed URLs. Operators publish releases with the **CLI** or manage them in the **dashboard**.
+A React Native app embeds the **SDK** and two tiny **native modules**. The SDK talks to a **backend** using a public per-app key. Bundles live in **storage** and are served via short-lived signed URLs. Operators publish releases with the **CLI** or manage them in the **dashboard**.
 
-Continue to **[Architecture](./architecture)** for the full picture, or jump straight to **[Getting Started](./getting-started)**.
+:::tip Supabase is the reference, not a requirement
+The backend is **pluggable**. Supabase (Postgres + Edge Functions + Storage) is the batteries-included reference implementation, but the protocol is open. Run the server on **any Node.js stack** with the [`@ota-platform/server`](./custom-backend) package — your own database and storage via adapters — or implement the wire protocol in any language. The SDK works against either, unchanged.
+:::
+
+Continue to **[Architecture](./architecture)** for the full picture, jump to **[Getting Started](./getting-started)**, or see **[Bring Your Own Backend](./custom-backend)**.

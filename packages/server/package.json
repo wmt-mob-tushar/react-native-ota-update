@@ -1,0 +1,43 @@
+{
+  "name": "@ota-platform/server",
+  "version": "1.0.0",
+  "description": "Framework-agnostic backend for self-hosted React Native OTA updates. Plug in any database and storage via adapters; use with Express, Fastify, or your own HTTP server.",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "tsc"
+  },
+  "keywords": [
+    "react-native",
+    "ota",
+    "over-the-air",
+    "codepush",
+    "hot-update",
+    "self-hosted",
+    "expo-updates",
+    "mobile",
+    "updates"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wmt-mob-tushar/react-native-ota-update.git",
+    "directory": "packages/server"
+  },
+  "homepage": "https://react-native-ota-update-docs.vercel.app/custom-backend",
+  "peerDependencies": {
+    "express": ">=4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "express": { "optional": true }
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0"
+  },
+  "engines": { "node": ">=18.0.0" }
+}

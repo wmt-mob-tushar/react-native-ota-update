@@ -22,6 +22,8 @@ Microsoft **CodePush / App Center is retired**, Expo **EAS Update is paid**, and
 
 It is modelled on the architecture of the best open‑source OTA projects (notably [hot-updater](https://github.com/gronxb/hot-updater)) — native‑owned bundle state, a crash‑window auto‑rollback, staged percentage rollouts, and signed download URLs.
 
+> **Supabase is the reference backend, not a requirement.** The SDK ↔ server contract is an open wire protocol. Use the [`@ota-platform/server`](./packages/server) npm package to run the backend on **any Node.js stack** (Express, Fastify, Next.js, Lambda) with **your own database and storage** via adapters — or implement the protocol in any language. See [Bring Your Own Backend](https://react-native-ota-update-docs.vercel.app/custom-backend).
+
 ## ✨ Features
 
 | | |
@@ -89,10 +91,11 @@ react-native-ota-update/
 │   ├── migrations/              # 7 idempotent SQL migrations
 │   └── functions/               # 7 Deno edge functions + _shared/
 ├── packages/
-│   ├── sdk/                     # @ota-platform/sdk
+│   ├── sdk/                     # @ota-platform/sdk (React Native client)
 │   │   ├── src/ota/             #   OTAManager, BundleDownloader, …
 │   │   ├── android/             #   OTAModule.java (native boot state)
 │   │   └── ios/                 #   OTAModule.m
+│   ├── server/                  # @ota-platform/server (bring-your-own backend)
 │   └── cli/                     # npx ota-cli (login, init, release, rollout…)
 ├── apps/
 │   ├── dashboard/               # Next.js 14 admin panel

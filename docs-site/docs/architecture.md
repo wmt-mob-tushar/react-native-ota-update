@@ -6,6 +6,10 @@ sidebar_position: 2
 
 # Architecture
 
+:::note Backend-agnostic
+The diagram below shows the **Supabase reference backend**. The SDK ↔ server contract is an open wire protocol — you can replace the Supabase box with your own server via [`@ota-platform/server`](./custom-backend) (any database + storage) and everything else stays the same.
+:::
+
 ```
 ┌──────────────────────────── React Native App ────────────────────────────┐
 │                                                                            │

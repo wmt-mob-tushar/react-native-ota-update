@@ -7,7 +7,7 @@ const sidebars = {
     {
       type: 'category',
       label: 'Backend',
-      items: ['backend-setup', 'database-schema', 'edge-functions'],
+      items: ['backend-setup', 'custom-backend', 'database-schema', 'edge-functions'],
     },
     {
       type: 'category',
