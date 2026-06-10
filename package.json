@@ -1,0 +1,34 @@
+{
+  "name": "ota-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Self-hosted OTA update platform for React Native — Supabase-backed",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "dev:dashboard": "npm run dev --workspace=apps/dashboard",
+    "dev:cli": "npm run dev --workspace=packages/cli",
+    "demo:android": "npm run android --workspace=apps/demo-app",
+    "demo:ios": "npm run ios --workspace=apps/demo-app",
+    "demo:start": "npm run start --workspace=apps/demo-app",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "db:push": "supabase db push",
+    "db:reset": "supabase db reset",
+    "functions:deploy": "supabase functions deploy",
+    "functions:serve": "supabase functions serve"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.0",
+    "supabase": "^2.105.0",
+    "typescript": "^5.4.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

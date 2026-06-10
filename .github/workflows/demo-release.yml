@@ -1,0 +1,91 @@
+name: Demo App OTA Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/demo-app/src/**'
+      - 'apps/demo-app/App.tsx'
+      - 'apps/demo-app/index.js'
+
+jobs:
+  release:
+    name: Build & Release (${{ matrix.platform }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [android, ios]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build JS bundle (${{ matrix.platform }})
+        working-directory: apps/demo-app
+        run: |
+          mkdir -p dist/${{ matrix.platform }}
+          npx react-native bundle \
+            --platform ${{ matrix.platform }} \
+            --dev false \
+            --entry-file index.js \
+            --bundle-output dist/${{ matrix.platform }}/index.bundle \
+            --assets-dest  dist/${{ matrix.platform }}/assets
+
+      - name: Zip bundle
+        working-directory: apps/demo-app/dist/${{ matrix.platform }}
+        run: |
+          zip -r bundle.zip index.bundle assets/
+          HASH=$(sha256sum bundle.zip | cut -d' ' -f1)
+          echo "BUNDLE_HASH=$HASH" >> $GITHUB_ENV
+          echo "Bundle SHA256: $HASH"
+
+      - name: Upload to Supabase Storage
+        working-directory: apps/demo-app/dist/${{ matrix.platform }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          BUNDLE_ID=$(uuidgen | tr '[:upper:]' '[:lower:]')
+          echo "BUNDLE_ID=$BUNDLE_ID" >> $GITHUB_ENV
+          STORAGE_PATH="ota/ota-demo/${{ matrix.platform }}/$BUNDLE_ID/bundle.zip"
+          curl -sf -X POST \
+            "$SUPABASE_URL/storage/v1/object/$STORAGE_PATH" \
+            -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+            -H "Content-Type: application/zip" \
+            --data-binary @bundle.zip
+
+      - name: Create release via Edge Function
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          OTA_OPERATOR_TOKEN: ${{ secrets.OTA_OPERATOR_TOKEN }}
+        run: |
+          curl -sf -X POST \
+            "$SUPABASE_URL/functions/v1/create-release" \
+            -H "Authorization: Bearer $OTA_OPERATOR_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "appSlug":        "ota-demo",
+              "channel":        "production",
+              "platform":       "${{ matrix.platform }}",
+              "runtimeVersion": "1.0.0",
+              "bundleId":       "${{ env.BUNDLE_ID }}",
+              "fileHash":       "${{ env.BUNDLE_HASH }}",
+              "storagePath":    "ota/ota-demo/${{ matrix.platform }}/${{ env.BUNDLE_ID }}/bundle.zip",
+              "message":        "CI build from ${{ github.sha }}",
+              "rolloutPercentage": 100
+            }'
+
+      - name: Summary
+        run: |
+          echo "## OTA Release ✅" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Platform | ${{ matrix.platform }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Bundle ID | ${{ env.BUNDLE_ID }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| SHA-256 | \`${{ env.BUNDLE_HASH }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY

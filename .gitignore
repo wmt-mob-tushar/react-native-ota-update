@@ -1,0 +1,64 @@
+# ─── Node ─────────────────────────────────────────────────────────────────────
+node_modules/
+dist/
+build/
+.turbo/
+.cache/
+*.tsbuildinfo
+packages/*/dist/
+
+# ─── Next.js (dashboard) ──────────────────────────────────────────────────────
+.next/
+out/
+apps/dashboard/.next/
+
+# ─── Local toolchain (JDK / Android SDK installed into the repo) ───────────────
+.toolchain/
+
+# ─── Environment & local config ───────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+!.env.example
+.ota-config.json
+
+# ─── Supabase ─────────────────────────────────────────────────────────────────
+supabase/.branches/
+supabase/.temp/
+
+# ─── CLI config ───────────────────────────────────────────────────────────────
+~/.ota/
+
+# ─── OS ───────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── Editors ──────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ─── Android ──────────────────────────────────────────────────────────────────
+apps/demo-app/android/.gradle/
+apps/demo-app/android/app/build/
+apps/demo-app/android/build/
+apps/demo-app/android/local.properties
+android/app/build/
+*.apk
+*.aab
+
+# ─── iOS ──────────────────────────────────────────────────────────────────────
+apps/demo-app/ios/Pods/
+ios/build/
+*.xcworkspace/xcuserdata/
+
+# ─── OTA bundles (generated) ──────────────────────────────────────────────────
+*.jsbundle
+*.zip
+apps/demo-app/android/app/src/main/assets/index.android.bundle
+
+# ─── Docusaurus ───────────────────────────────────────────────────────────────
+docs-site/build/
+docs-site/.docusaurus/
+docs-site/node_modules/

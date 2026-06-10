@@ -1,0 +1,21 @@
+rootProject.name = 'OTADemo'
+
+// Monorepo note: node_modules are hoisted to the repo root, so resolve
+// paths via Node instead of hardcoding ../../node_modules.
+def nodeResolve = { String request ->
+    new File(
+        ["node", "--print", "require.resolve('${request}')"]
+            .execute(null, rootDir).text.trim()
+    )
+}
+
+// RN 0.74 autolinking (CLI-based)
+apply from: nodeResolve("@react-native-community/cli-platform-android/native_modules.gradle")
+applyNativeModulesSettingsGradle(settings)
+
+include ':app'
+includeBuild(nodeResolve("@react-native/gradle-plugin/package.json").getParentFile().absolutePath)
+
+// OTA SDK Android module (from monorepo packages/sdk)
+include ':ota-sdk-android'
+project(':ota-sdk-android').projectDir = new File(rootDir, '../../../packages/sdk/android')

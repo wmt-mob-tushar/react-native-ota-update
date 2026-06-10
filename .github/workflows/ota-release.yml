@@ -1,0 +1,165 @@
+name: OTA Release
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'src/**'
+      - 'index.js'
+      - 'package.json'
+
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to release'
+        required: true
+        default: 'both'
+        type: choice
+        options: [both, ios, android]
+      channel:
+        description: 'Release channel'
+        required: true
+        default: 'production'
+        type: string
+      rollout_percentage:
+        description: 'Initial rollout percentage'
+        required: true
+        default: '100'
+        type: string
+      force_update:
+        description: 'Force update on all devices?'
+        required: false
+        default: 'false'
+        type: boolean
+
+concurrency:
+  group: ota-release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release:
+    name: Build & Release (${{ inputs.platform || 'both' }})
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+      OTA_ACCESS_TOKEN: ${{ secrets.OTA_ACCESS_TOKEN }}
+
+    strategy:
+      matrix:
+        platform: ${{ fromJSON(inputs.platform == 'ios' && '["ios"]' || inputs.platform == 'android' && '["android"]' || '["ios","android"]') }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ── Build JS bundle ──────────────────────────────────────
+      - name: Build ${{ matrix.platform }} bundle
+        run: |
+          npx react-native bundle \
+            --platform ${{ matrix.platform }} \
+            --entry-file index.js \
+            --bundle-output dist/main.jsbundle \
+            --assets-dest dist/assets \
+            --dev false \
+            --minify
+
+      # ── Hermes bytecode (optional, controlled by env var) ────
+      - name: Compile Hermes bytecode
+        if: env.USE_HERMES == 'true'
+        run: |
+          HERMES=$(find node_modules -name hermesc -type f 2>/dev/null | head -1)
+          if [ -n "$HERMES" ]; then
+            $HERMES -emit-binary -out dist/main.hbc dist/main.jsbundle
+            mv dist/main.hbc dist/main.jsbundle
+            echo "Hermes bytecode compiled"
+          fi
+
+      # ── Zip bundle + assets ──────────────────────────────────
+      - name: Create bundle archive
+        id: archive
+        run: |
+          cd dist
+          zip -r bundle.zip main.jsbundle assets/
+          HASH=$(sha256sum bundle.zip | cut -d' ' -f1)
+          SIZE=$(stat -c%s bundle.zip)
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
+          echo "size=$SIZE" >> $GITHUB_OUTPUT
+          echo "Bundle: $SIZE bytes, sha256=$HASH"
+
+      # ── Get app slug from .ota-config.json ───────────────────
+      - name: Read project config
+        id: config
+        run: |
+          if [ -f .ota-config.json ]; then
+            SLUG=$(jq -r '.appSlug' .ota-config.json)
+            APP_ID=$(jq -r '.applicationId' .ota-config.json)
+            echo "slug=$SLUG"    >> $GITHUB_OUTPUT
+            echo "app_id=$APP_ID" >> $GITHUB_OUTPUT
+          else
+            echo "ERROR: .ota-config.json not found" && exit 1
+          fi
+
+      # ── Upload to Supabase Storage ───────────────────────────
+      - name: Upload bundle to Supabase Storage
+        id: upload
+        run: |
+          BUNDLE_ID=$(python3 -c "import uuid; print(uuid.uuid4())")
+          CHANNEL="${{ inputs.channel || 'production' }}"
+          PLATFORM="${{ matrix.platform }}"
+          STORAGE_PATH="${{ steps.config.outputs.slug }}/${CHANNEL}/${PLATFORM}/${BUNDLE_ID}/bundle.zip"
+
+          curl -fsSL -X POST \
+            "${SUPABASE_URL}/storage/v1/object/ota/${STORAGE_PATH}" \
+            -H "Authorization: Bearer ${OTA_ACCESS_TOKEN}" \
+            -H "Content-Type: application/zip" \
+            --data-binary @dist/bundle.zip
+
+          echo "storage_path=${STORAGE_PATH}" >> $GITHUB_OUTPUT
+          echo "bundle_id=${BUNDLE_ID}"       >> $GITHUB_OUTPUT
+
+      # ── Create release via Edge Function ────────────────────
+      - name: Create OTA release
+        id: release
+        run: |
+          RESPONSE=$(curl -fsSL -X POST \
+            "${SUPABASE_URL}/functions/v1/create-release" \
+            -H "Authorization: Bearer ${OTA_ACCESS_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "application_id":     "${{ steps.config.outputs.app_id }}",
+              "channel":            "${{ inputs.channel || 'production' }}",
+              "platform":           "${{ matrix.platform }}",
+              "runtime_version":    "${{ github.ref_name }}",
+              "storage_path":       "${{ steps.upload.outputs.storage_path }}",
+              "file_hash":          "${{ steps.archive.outputs.hash }}",
+              "file_size":          ${{ steps.archive.outputs.size }},
+              "semver":             "${{ github.ref_name }}",
+              "should_force_update": ${{ inputs.force_update || false }},
+              "message":            "Automated release from CI — commit ${{ github.sha }}",
+              "rollout_percentage": ${{ inputs.rollout_percentage || 100 }}
+            }')
+
+          echo "response=$RESPONSE" >> $GITHUB_OUTPUT
+          echo "Release: $RESPONSE"
+
+      - name: Release summary
+        run: |
+          echo "## ✅ OTA Release (${{ matrix.platform }})" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Platform | ${{ matrix.platform }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Channel | ${{ inputs.channel || 'production' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Rollout | ${{ inputs.rollout_percentage || 100 }}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| SHA-256 | ${{ steps.archive.outputs.hash }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY

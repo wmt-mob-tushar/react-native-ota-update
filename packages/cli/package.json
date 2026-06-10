@@ -1,0 +1,40 @@
+{
+  "name": "@ota-platform/cli",
+  "version": "1.0.0",
+  "description": "CLI for managing OTA updates — release, rollout, rollback",
+  "type": "module",
+  "bin": {
+    "ota-cli": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev":   "ts-node src/index.ts",
+    "lint":  "eslint src"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.43.0",
+    "commander":             "^12.1.0",
+    "chalk":                 "^5.3.0",
+    "ora":                   "^8.0.1",
+    "inquirer":              "^9.2.23",
+    "adm-zip":               "^0.5.14",
+    "glob":                  "^11.0.0",
+    "mime-types":            "^2.1.35",
+    "conf":                  "^13.0.0",
+    "node-fetch":            "^3.3.2",
+    "execa":                 "^9.3.0",
+    "table":                 "^6.8.1",
+    "uuid":                  "^9.0.1"
+  },
+  "devDependencies": {
+    "typescript":      "^5.4.0",
+    "@types/node":     "^20.0.0",
+    "@types/inquirer": "^9.0.7",
+    "@types/adm-zip":  "^0.5.5",
+    "@types/mime-types": "^2.1.4",
+    "@types/uuid":     "^9.0.8",
+    "ts-node":         "^10.9.2"
+  },
+  "engines": { "node": ">=18.0.0" }
+}
