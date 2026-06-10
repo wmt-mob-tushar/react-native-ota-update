@@ -1,14 +1,21 @@
 // @ts-check
 const { themes } = require('prism-react-renderer');
 
+// Vercel serves at the domain root; GitHub Pages serves under a sub-path.
+// Set DEPLOY_TARGET=gh-pages in the Pages workflow; Vercel uses the default.
+const isGitHubPages = process.env.DEPLOY_TARGET === 'gh-pages';
+const siteUrl  = process.env.SITE_URL
+  || (isGitHubPages ? 'https://wmt-mob-tushar.github.io' : 'https://react-native-ota-update.vercel.app');
+const baseUrl  = isGitHubPages ? '/react-native-ota-update/' : '/';
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'React Native OTA Update Platform',
   tagline: 'Self-hosted Over-The-Air updates for React Native, powered by Supabase',
   favicon: 'img/favicon.ico',
 
-  url: 'https://wmt-mob-tushar.github.io',
-  baseUrl: '/react-native-ota-update/',
+  url: siteUrl,
+  baseUrl,
 
   organizationName: 'wmt-mob-tushar',
   projectName: 'react-native-ota-update',

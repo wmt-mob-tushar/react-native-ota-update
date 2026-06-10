@@ -41,6 +41,8 @@ jobs:
       - name: Build
         working-directory: docs-site
         run: npm run build
+        env:
+          DEPLOY_TARGET: gh-pages
 
       - uses: actions/configure-pages@v5
 
