@@ -1,0 +1,46 @@
+name: Deploy Docs to Vercel
+
+# Automatically builds the Docusaurus site and deploys it to Vercel on
+# every push to main that touches the docs.
+#
+# Requires ONE repository secret (Settings → Secrets and variables → Actions):
+#   VERCEL_TOKEN — create at https://vercel.com/account/tokens
+# The org/project IDs below are identifiers (not secrets) for the linked
+# Vercel project `react-native-ota-update-docs`.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs-site/**'
+      - '.github/workflows/deploy-vercel.yml'
+  workflow_dispatch:
+
+env:
+  VERCEL_ORG_ID: team_4lqxe5jelmLjO7rwJgqL7mU3
+  VERCEL_PROJECT_ID: prj_WOizDQ2F4yLWUa8OYSl9OUpi1VIy
+
+jobs:
+  deploy:
+    name: Build & deploy to Vercel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Pull Vercel project settings
+        working-directory: docs-site
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build with Vercel
+        working-directory: docs-site
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to Vercel
+        working-directory: docs-site
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}

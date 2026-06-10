@@ -5,7 +5,7 @@ const { themes } = require('prism-react-renderer');
 // Set DEPLOY_TARGET=gh-pages in the Pages workflow; Vercel uses the default.
 const isGitHubPages = process.env.DEPLOY_TARGET === 'gh-pages';
 const siteUrl  = process.env.SITE_URL
-  || (isGitHubPages ? 'https://wmt-mob-tushar.github.io' : 'https://react-native-ota-update.vercel.app');
+  || (isGitHubPages ? 'https://wmt-mob-tushar.github.io' : 'https://react-native-ota-update-docs.vercel.app');
 const baseUrl  = isGitHubPages ? '/react-native-ota-update/' : '/';
 
 /** @type {import('@docusaurus/types').Config} */

@@ -62,3 +62,6 @@ apps/demo-app/android/app/src/main/assets/index.android.bundle
 docs-site/build/
 docs-site/.docusaurus/
 docs-site/node_modules/
+
+# ─── Vercel ───────────────────────────────────────────────────────────────────
+.vercel/
